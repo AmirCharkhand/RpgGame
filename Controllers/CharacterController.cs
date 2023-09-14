@@ -97,6 +97,14 @@ public class CharacterController : ControllerBase
         return Ok(response.Message);
     }
 
+    [HttpPost("GroupDelete")]
+    public async Task<ActionResult<string>> DeleteCharacters([FromBody] List<int> ids)
+    {
+        var response = await _repository.DeleteCharacters(ids);
+        if (!response.Success) return BadRequest(response.Message);
+        return Ok(response.Message);
+    }
+
     [HttpPost("AddSkill")]
     public async Task<ActionResult<GetCharacterDto>> AddSkill([FromBody] AddCharacterSkillDto characterSkill)
     {

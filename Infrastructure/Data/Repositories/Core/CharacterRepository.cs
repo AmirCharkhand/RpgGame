@@ -1,5 +1,6 @@
 ﻿using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using RPG.Application.Models;
 using RPG.Application.Services.Contracts;
 using RPG.Domain.Models;
@@ -212,7 +213,35 @@ public class CharacterRepository : Repository<Character,int> , ICharacterReposit
 
         return response;
     }
-    
+
+    public async Task<ServiceResponse<Character>> DeleteCharacters(List<int> ids)
+    {
+        var response = new ServiceResponse<Character>();
+        try
+        {
+            var characters = await Filter(c => c.User!.Id == UserId)
+                .Where(c => ids.Contains(c.Id))
+                .ToListAsync();
+            if (characters.IsNullOrEmpty())
+            {
+                response.Success = false;
+                response.Message = "The Given Characters doesn't Exist or Don't Belong to Current User";
+            }
+            else
+            {
+                await GroupDelete(characters);
+                response.Message = "Characters successfully Removed";
+            }
+        }
+        catch (Exception e)
+        {
+            response.Message = e.Message;
+            response.Success = false;
+        }
+
+        return response;
+    }
+
     public async Task<ServiceResponse<Character>> AddCharacterSkill(int characterId, int skillId)
     {
         var response = new ServiceResponse<Character>();

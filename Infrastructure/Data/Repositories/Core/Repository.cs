@@ -63,4 +63,10 @@ public class Repository<T, TKey> : IRepository<T, TKey> where T : Entity<TKey>
         Set.Remove(entity);
         await _dbContext.SaveChangesAsync();
     }
+
+    public async Task GroupDelete(List<T> entities)
+    {
+        Set.RemoveRange(entities);
+        await _dbContext.SaveChangesAsync();
+    }
 }

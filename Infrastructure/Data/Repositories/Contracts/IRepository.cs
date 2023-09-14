@@ -16,4 +16,5 @@ public interface IRepository<T,TKey> where T : Entity<TKey>
     Task Update(T entity);
     Task GroupUpdate(List<T> entities);
     Task Delete(T entity);
+    Task GroupDelete(List<T> entities);
 }
