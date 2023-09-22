@@ -25,6 +25,7 @@ public class WeaponController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<GetCharacterDto>> AddWeapon([FromBody] AddWeaponDto newWeapon)
     {
+        if (!ModelState.IsValid) return BadRequest(ModelState);
         var weapon = _mapper.Map<Weapon>(newWeapon);
         var response = await _repository.AddWeapon(weapon);
         if (!response.Success) return BadRequest(response.Message);
