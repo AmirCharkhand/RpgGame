@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using RPG.Application.Models;
 using RPG.Application.Models.CharacterDtos;
 using RPG.Application.Models.CharacterSkillDtos;
+using RPG.Application.Models.SkillDtos;
 using RPG.Domain.Models;
 using RPG.Infrastructure.Data.Paging;
 using RPG.Infrastructure.Data.Repositories.Contracts;
@@ -106,11 +107,20 @@ public class CharacterController : ControllerBase
     }
 
     [HttpPost("AddSkill")]
-    public async Task<ActionResult<GetCharacterDto>> AddSkill([FromBody] AddCharacterSkillDto characterSkill)
+    public async Task<ActionResult<List<GetSkillDto>>> AddSkill([FromBody] CharacterSkillDto characterSkill)
     {
         var response = await _repository.AddCharacterSkill(characterSkill.CharacterId, characterSkill.SkillId);
         if (!response.Success) return BadRequest(response.Message);
-        var result = _mapper.Map<GetCharacterDto>(response.Data);
+        var result = _mapper.Map<List<GetSkillDto>>(response.Data);
+        return Ok(result);
+    }
+    
+    [HttpPost("RemoveSkill")]
+    public async Task<ActionResult<List<GetSkillDto>>> RemoveSkill([FromBody] CharacterSkillDto characterSkill)
+    {
+        var response = await _repository.RemoveCharacterSkill(characterSkill.CharacterId, characterSkill.SkillId);
+        if (!response.Success) return BadRequest(response.Message);
+        var result = _mapper.Map<List<GetSkillDto>>(response.Data);
         return Ok(result);
     }
 }

@@ -14,5 +14,6 @@ public interface ICharacterRepository : IRepository<Character,int>
     Task<ServiceResponse<Character>> ModifyCharacter(Character toModify);
     Task<ServiceResponse<Character>> DeleteCharacter(int id);
     Task<ServiceResponse<Character>> DeleteCharacters(List<int> ids);
-    Task<ServiceResponse<Character>> AddCharacterSkill(int characterId, int skillId);
+    Task<ServiceResponse<IEnumerable<Skill>>> AddCharacterSkill(int characterId, int skillId);
+    Task<ServiceResponse<IEnumerable<Skill>>> RemoveCharacterSkill(int characterId, int skillId);
 }

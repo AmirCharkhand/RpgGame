@@ -29,6 +29,11 @@ public class Repository<T, TKey> : IRepository<T, TKey> where T : Entity<TKey>
         return await Set.FindAsync(id);
     }
 
+    public async Task<List<T>> GetAll()
+    {
+        return await Set.ToListAsync();
+    }
+
     public IQueryable<T> Filter(Expression<Func<T, bool>> expression)
     {
         return Set

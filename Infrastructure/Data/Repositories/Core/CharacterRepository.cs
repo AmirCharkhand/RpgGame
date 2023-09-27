@@ -242,9 +242,9 @@ public class CharacterRepository : Repository<Character,int> , ICharacterReposit
         return response;
     }
 
-    public async Task<ServiceResponse<Character>> AddCharacterSkill(int characterId, int skillId)
+    public async Task<ServiceResponse<IEnumerable<Skill>>> AddCharacterSkill(int characterId, int skillId)
     {
-        var response = new ServiceResponse<Character>();
+        var response = new ServiceResponse<IEnumerable<Skill>>();
         try
         {
             var character = await Filter(c => c.User!.Id == UserId)
@@ -264,9 +264,51 @@ public class CharacterRepository : Repository<Character,int> , ICharacterReposit
                 return response;
             }
 
+            if (character.Skills!.Contains(skill))
+            {
+                response.Message = "This Character Already has the requested Skill!";
+                response.Success = false;
+                return response;
+            }
+
             character.Skills!.Add(skill);
             await Update(character);
-            response.Data = character;
+            response.Data = character.Skills;
+        }
+        catch (Exception e)
+        {
+            response.Message = e.Message;
+            response.Success = false;
+        }
+
+        return response;
+    }
+
+    public async Task<ServiceResponse<IEnumerable<Skill>>> RemoveCharacterSkill(int characterId, int skillId)
+    {
+        var response = new ServiceResponse<IEnumerable<Skill>>();
+        try
+        {
+            var character = await Filter(c => c.User!.Id == UserId)
+                .FirstOrDefaultAsync(c => c.Id == characterId);
+            var skill = await _skillRepository.GetById(skillId);
+            
+            if (character == null)
+            {
+                response.Message = "This Character doesn't belong to the current User or doesn't exists";
+                response.Success = false;
+                return response;
+            }
+            if (skill == null)
+            {
+                response.Message = "This Skill doesn't exists";
+                response.Success = false;
+                return response;
+            }
+
+            character.Skills!.Remove(skill);
+            await Update(character);
+            response.Data = character.Skills;
         }
         catch (Exception e)
         {
