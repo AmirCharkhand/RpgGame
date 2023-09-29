@@ -1,4 +1,5 @@
-﻿using RPG.Application.Services.Contracts;
+﻿using RPG.Application.Models;
+using RPG.Application.Services.Contracts;
 using RPG.Infrastructure.Data.Repositories.Contracts;
 using RPG.Infrastructure.Data.Services;
 
@@ -15,9 +16,9 @@ public class AuthService : IAuthService
         _hashService = hashService;
     }
     
-    public async Task<ServiceResponse<string>> Login(string userName, string password)
+    public async Task<ServiceResponse<AuthDto>> Login(string userName, string password)
     {
-        var response = new ServiceResponse<string>();
+        var response = new ServiceResponse<AuthDto>();
         var userResponse = await _userRepository.GetUser(userName);
         if (!userResponse.Success)
         {
@@ -28,12 +29,16 @@ public class AuthService : IAuthService
         
         if (_hashService.VerifyHash(password, userResponse.Data!.PasswordHash, userResponse.Data.PasswordSalt))
         {
-            response.Data = _hashService.CreateJwt(userResponse.Data);
+            var loginDto = new AuthDto()
+            {
+                Jwt = _hashService.CreateJwt(userResponse.Data),
+                UserName = userResponse.Data.Username
+            };
+            response.Data = loginDto;
             response.Message = "Logged in";
         }
         else
         {
-            response.Data = "NO";
             response.Message = "Wrong Password";
             response.Success = false;
         }

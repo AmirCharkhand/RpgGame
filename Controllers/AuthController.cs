@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using RPG.Application.Models;
 using RPG.Application.Models.UserDtos;
 using RPG.Application.Services.Contracts;
 using RPG.Infrastructure.Data.Repositories.Contracts;
@@ -27,7 +28,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("login")]
-    public async Task<ActionResult<string>> Login([FromBody] UserLoginDto user)
+    public async Task<ActionResult<AuthDto>> Login([FromBody] UserLoginDto user)
     {
         var response = await _authService.Login(user.UserName, user.Password);
         if (!response.Success) return BadRequest(response.Message);
