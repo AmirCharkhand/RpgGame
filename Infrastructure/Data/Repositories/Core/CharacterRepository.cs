@@ -192,18 +192,11 @@ public class CharacterRepository : Repository<Character,int> , ICharacterReposit
         var response = new ServiceResponse<Character>();
         try
         {
-            var character = await Filter(c => c.User!.Id == UserId)
-                    .FirstOrDefaultAsync(c => c.Id == id);
-            if (character == null)
-            {
-                response.Success = false;
-                response.Message = "The Given Character doesn't Exist or Doesn't Belong to Current User";
-            }
-            else
-            {
-                await Delete(character);
-                response.Message = "Character successfully Removed";
-            }
+            var character = await GetACharacter(id, response);
+            if (!response.Success) return response;
+            
+            await Delete(character!);
+            response.Message = "Character successfully Removed";
         }
         catch (Exception e)
         {
@@ -247,37 +240,24 @@ public class CharacterRepository : Repository<Character,int> , ICharacterReposit
         var response = new ServiceResponse<IEnumerable<Skill>>();
         try
         {
-            var character = await Filter(c => c.User!.Id == UserId)
-                .FirstOrDefaultAsync(c => c.Id == characterId);
-            var skill = await _skillRepository.GetById(skillId);
+            var character = await GetACharacter(characterId, response);
+            var skill = await GetSkill(skillId, response);
+            if (!response.Success) return response;
             
-            if (character == null)
-            {
-                response.Message = "This Character doesn't belong to the current User or doesn't exists";
-                response.Success = false;
-                return response;
-            }
-            if (skill == null)
-            {
-                response.Message = "This Skill doesn't exists";
-                response.Success = false;
-                return response;
-            }
-
-            if (character.Skills!.Contains(skill))
+            if (character!.Skills!.Contains(skill!))
             {
                 response.Message = "This Character Already has the requested Skill!";
                 response.Success = false;
                 return response;
             }
 
-            character.Skills!.Add(skill);
+            character.Skills!.Add(skill!);
             await Update(character);
             response.Data = character.Skills;
         }
         catch (Exception e)
         {
-            response.Message = e.Message;
+            response.Message += e.Message;
             response.Success = false;
         }
 
@@ -289,33 +269,47 @@ public class CharacterRepository : Repository<Character,int> , ICharacterReposit
         var response = new ServiceResponse<IEnumerable<Skill>>();
         try
         {
-            var character = await Filter(c => c.User!.Id == UserId)
-                .FirstOrDefaultAsync(c => c.Id == characterId);
-            var skill = await _skillRepository.GetById(skillId);
-            
-            if (character == null)
-            {
-                response.Message = "This Character doesn't belong to the current User or doesn't exists";
-                response.Success = false;
-                return response;
-            }
-            if (skill == null)
-            {
-                response.Message = "This Skill doesn't exists";
-                response.Success = false;
-                return response;
-            }
+            var character = await GetACharacter(characterId, response);
+            var skill = await GetSkill(skillId, response);
+            if (!response.Success) return response;
 
-            character.Skills!.Remove(skill);
+            character!.Skills!.Remove(skill!);
             await Update(character);
             response.Data = character.Skills;
         }
         catch (Exception e)
         {
-            response.Message = e.Message;
+            response.Message += e.Message;
             response.Success = false;
         }
 
         return response;
+    }
+
+    private async Task<Skill?> GetSkill<T>(int skillId, ServiceResponse<T> response)
+    {
+        var skill = await _skillRepository.GetById(skillId);
+
+        if (skill == null)
+        {
+            response.Message += " This Skill doesn't exists.";
+            response.Success = false;
+        }
+
+        return skill;
+    }
+
+    private async Task<Character?> GetACharacter<T>(int characterId, ServiceResponse<T> response)
+    {
+        var character = await Filter(c => c.User!.Id == UserId)
+            .FirstOrDefaultAsync(c => c.Id == characterId);
+        
+        if (character == null)
+        {
+            response.Message += " This Character doesn't belong to the current User or doesn't exists.";
+            response.Success = false;
+        }
+
+        return character;
     }
 }
