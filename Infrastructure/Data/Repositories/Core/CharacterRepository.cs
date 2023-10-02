@@ -29,6 +29,7 @@ public class CharacterRepository : Repository<Character,int> , ICharacterReposit
         try
         {
             var result = await Filter(c => EF.Functions.Like(c.Name, $"%{searchText}%"))
+                .Include(c => c.Weapon)
                 .Where(c => c.User!.Id == UserId)
                 .Sort(sortDto)
                 .CalculatePaging(pagingParam);
@@ -49,6 +50,7 @@ public class CharacterRepository : Repository<Character,int> , ICharacterReposit
         try
         {
             var result = await Filter(c => c.User!.Id == UserId)
+                .Include(c => c.Weapon)
                 .Sort(sortDto)
                 .CalculatePaging(pagingParam);
             response.Data = result;
@@ -129,6 +131,7 @@ public class CharacterRepository : Repository<Character,int> , ICharacterReposit
         try
         {
             var characters = await Filter(func)
+                .Include(c => c.Weapon)
                 .Where(c => c.User!.Id == UserId)
                 .Sort(sortDto)
                 .CalculatePaging(pagingParam);

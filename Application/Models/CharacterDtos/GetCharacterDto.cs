@@ -1,5 +1,4 @@
-﻿using RPG.Application.Models.SkillDtos;
-using RPG.Application.Models.WeaponDtos;
+﻿using RPG.Application.Models.WeaponDtos;
 
 namespace RPG.Application.Models.CharacterDtos;
 
@@ -16,5 +15,4 @@ public class GetCharacterDto
     public int Victories { get; set; }
     public int Defeats { get; set; }
     public GetWeaponDto? Weapon { get; set; }
-    public List<GetSkillDto>? Skills { get; set; }
 }
