@@ -45,10 +45,20 @@ public class CharacterController : ControllerBase
         return Ok(result);
     }
     
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<GetOwnedCharacterDto>>> GetAllCharacters([FromQuery] SortDto? sortDto, [FromQuery] PagingParam? pagingParam = default)
+    [HttpGet("Universal/{searchText}")]
+    public async Task<ActionResult<IEnumerable<GetUniversalCharacterDto>>> UniversalSearch([FromRoute]string searchText, [FromQuery] PagingParam? pagingParam, [FromQuery] SortDto? sortDto)
     {
-        var response = await _repository.GetAll(sortDto, pagingParam);
+        var response = await _repository.UniversalCharacterSearch(searchText, sortDto, pagingParam);
+        if (!response.Success) return BadRequest(response.Message);
+        
+        Response.Headers.Add("X_TotalCount", response.Data!.TotalCount.ToString());
+        return Ok(response.Data);
+    }
+
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<GetOwnedCharacterDto>>> GetOwnedCharacters([FromQuery] SortDto? sortDto, [FromQuery] PagingParam? pagingParam = default)
+    {
+        var response = await _repository.GetOwnedCharacters(sortDto, pagingParam);
         if (!response.Success) return BadRequest(response.Message);
 
         var result = _mapper.Map<IEnumerable<GetOwnedCharacterDto>>(response.Data!.ToList());
@@ -56,6 +66,16 @@ public class CharacterController : ControllerBase
         return Ok(result);
     }
     
+    [HttpGet("Universal")]
+    public async Task<ActionResult<IEnumerable<GetUniversalCharacterDto>>> GetUniversalCharacters([FromQuery] SortDto? sortDto, [FromQuery] PagingParam? pagingParam = default)
+    {
+        var response = await _repository.GetUniversalCharacters(sortDto, pagingParam);
+        if (!response.Success) return BadRequest(response.Message);
+        
+        Response.Headers.Add("X_TotalCount", response.Data!.TotalCount.ToString());
+        return Ok(response.Data);
+    }
+
     [HttpPost("Filter")]
     public async Task<ActionResult<IEnumerable<GetOwnedCharacterDto>>> FilterCharacters([FromBody] List<FilterDto> filterDtos, 
         [FromQuery] SortDto? sortDto, [FromQuery] PagingParam? pagingParam = default)

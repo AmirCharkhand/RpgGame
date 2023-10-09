@@ -1,7 +1,9 @@
 ﻿using System.Linq.Expressions;
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using RPG.Application.Models;
+using RPG.Application.Models.CharacterDtos;
 using RPG.Application.Services.Contracts;
 using RPG.Domain.Models;
 using RPG.Infrastructure.Data.Paging;
@@ -16,11 +18,13 @@ public class CharacterRepository : Repository<Character,int> , ICharacterReposit
     private readonly IExpressionBuilder _expressionBuilder;
     private readonly IUserRepository _userRepository;
     private readonly ISkillRepository _skillRepository;
-    public CharacterRepository(DataContext dbContext, IHttpContextAccessor contextAccessor, IExpressionBuilder expressionBuilder, IUserRepository userRepository, ISkillRepository skillRepository) : base(dbContext, contextAccessor)
+    private readonly IMapper _mapper;
+    public CharacterRepository(DataContext dbContext, IHttpContextAccessor contextAccessor, IExpressionBuilder expressionBuilder, IUserRepository userRepository, ISkillRepository skillRepository, IMapper mapper) : base(dbContext, contextAccessor)
     {
         _expressionBuilder = expressionBuilder;
         _userRepository = userRepository;
         _skillRepository = skillRepository;
+        _mapper = mapper;
     }
 
     public override async Task<ServiceResponse<PagedList<Character>>> Search(string searchText,SortDto? sortDto, PagingParam? pagingParam = default)
@@ -44,7 +48,7 @@ public class CharacterRepository : Repository<Character,int> , ICharacterReposit
         return response;
     }
 
-    public async Task<ServiceResponse<PagedList<Character>>> GetAll(SortDto? sortDto, PagingParam? pagingParam = default)
+    public async Task<ServiceResponse<PagedList<Character>>> GetOwnedCharacters(SortDto? sortDto, PagingParam? pagingParam = default)
     {
         var response = new ServiceResponse<PagedList<Character>>();
         try
@@ -62,7 +66,62 @@ public class CharacterRepository : Repository<Character,int> , ICharacterReposit
         }
         return response;
     }
-    
+
+    public async Task<ServiceResponse<PagedList<GetUniversalCharacterDto>>> GetUniversalCharacters(SortDto? sortDto, PagingParam? pagingParam)
+    {
+        var response = new ServiceResponse<PagedList<GetUniversalCharacterDto>>();
+        try
+        {
+            var characters = await Filter(c => true)
+                .Include(c => c.User)
+                .Include(c => c.Weapon)
+                .Sort(sortDto)
+                .CalculatePaging(pagingParam);
+            response.Data = DistinguishOwnedCharacters(characters);
+        }
+        catch (Exception e)
+        {
+            response.Success = false;
+            response.Message = "Couldn't fetch data from Database! " + e.Message;
+        }
+
+        return response;
+    }
+
+    public async Task<ServiceResponse<PagedList<GetUniversalCharacterDto>>> UniversalCharacterSearch(string searchText, SortDto? sortDto, PagingParam? pagingParam)
+    {
+        var response = new ServiceResponse<PagedList<GetUniversalCharacterDto>>();
+        try
+        {
+            var characters = await Filter(c => EF.Functions.Like(c.Name, $"%{searchText}%"))
+                .Include(c => c.User)
+                .Include(c => c.Weapon)
+                .Sort(sortDto)
+                .CalculatePaging(pagingParam);
+            response.Data = DistinguishOwnedCharacters(characters);
+        }
+        catch (Exception e)
+        {
+            response.Success = false;
+            response.Message = "Couldn't fetch data from Database! " + e.Message;
+        }
+
+        return response;
+    }
+
+    private PagedList<GetUniversalCharacterDto> DistinguishOwnedCharacters(PagedList<Character> characters)
+    {
+        var universalCharacters = new List<GetUniversalCharacterDto>();
+        foreach (var character in characters)
+        {
+            var universalCharacter = _mapper.Map<GetUniversalCharacterDto>(character);
+            if (character.User!.Id == UserId) universalCharacter.Owned = true;
+            universalCharacters.Add(universalCharacter);
+        }
+
+        return new PagedList<GetUniversalCharacterDto>(universalCharacters, characters.TotalCount);
+    }
+
     public async Task<ServiceResponse<Character>> GetCharacterById(int id)
     {
         var response = new ServiceResponse<Character>();

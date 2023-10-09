@@ -5,7 +5,7 @@ namespace RPG.Application.Models.CharacterDtos;
 public class GetUniversalCharacterDto
 {
     public int Id { get; set; }
-    public bool Owned { get; set; }
+    public bool Owned { get; set; } = false;
     public string Name { get; set; } = string.Empty;
     public float Health { get; set; }
     public float Strength { get; set; }
