@@ -25,57 +25,57 @@ public class CharacterController : ControllerBase
     }
     
     [HttpGet("{id:int}")]
-    public async Task<ActionResult<GetCharacterDto>> GetCharacter([FromRoute]int id)
+    public async Task<ActionResult<GetOwnedCharacterDto>> GetCharacter([FromRoute]int id)
     {
         var response = await _repository.GetCharacterById(id);
         if (!response.Success) return BadRequest(response.Message);
 
-        var result = _mapper.Map<GetCharacterDto>(response.Data);
+        var result = _mapper.Map<GetOwnedCharacterDto>(response.Data);
         return Ok(result);
     }
 
     [HttpGet("{searchText}")]
-    public async Task<ActionResult<IEnumerable<GetCharacterDto>>> Search([FromRoute]string searchText, [FromQuery] PagingParam? pagingParam, [FromQuery] SortDto? sortDto)
+    public async Task<ActionResult<IEnumerable<GetOwnedCharacterDto>>> Search([FromRoute]string searchText, [FromQuery] PagingParam? pagingParam, [FromQuery] SortDto? sortDto)
     {
         var response = await _repository.Search(searchText, sortDto, pagingParam);
         if (!response.Success) return BadRequest(response.Message);
         
-        var result = _mapper.Map<IEnumerable<GetCharacterDto>>(response.Data!.ToList());
+        var result = _mapper.Map<IEnumerable<GetOwnedCharacterDto>>(response.Data!.ToList());
         Response.Headers.Add("X_TotalCount", response.Data!.TotalCount.ToString());
         return Ok(result);
     }
     
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<GetCharacterDto>>> GetAllCharacters([FromQuery] SortDto? sortDto, [FromQuery] PagingParam? pagingParam = default)
+    public async Task<ActionResult<IEnumerable<GetOwnedCharacterDto>>> GetAllCharacters([FromQuery] SortDto? sortDto, [FromQuery] PagingParam? pagingParam = default)
     {
         var response = await _repository.GetAll(sortDto, pagingParam);
         if (!response.Success) return BadRequest(response.Message);
 
-        var result = _mapper.Map<IEnumerable<GetCharacterDto>>(response.Data!.ToList());
+        var result = _mapper.Map<IEnumerable<GetOwnedCharacterDto>>(response.Data!.ToList());
         Response.Headers.Add("X_TotalCount", response.Data!.TotalCount.ToString());
         return Ok(result);
     }
     
     [HttpPost("Filter")]
-    public async Task<ActionResult<IEnumerable<GetCharacterDto>>> FilterCharacters([FromBody] List<FilterDto> filterDtos, 
+    public async Task<ActionResult<IEnumerable<GetOwnedCharacterDto>>> FilterCharacters([FromBody] List<FilterDto> filterDtos, 
         [FromQuery] SortDto? sortDto, [FromQuery] PagingParam? pagingParam = default)
     {
         var response = await _repository.FilterCharacter(filterDtos, sortDto, pagingParam);
         if (!response.Success) return BadRequest(response.Message);
 
-        var result = _mapper.Map<IEnumerable<GetCharacterDto>>(response.Data!.ToList());
+        var result = _mapper.Map<IEnumerable<GetOwnedCharacterDto>>(response.Data!.ToList());
         Response.Headers.Add("X_TotalCount", response.Data!.TotalCount.ToString());
         return Ok(result);
     }
 
     [HttpPost]
-    public async Task<ActionResult<GetCharacterDto>> CreateCharacter([FromBody] AddCharacterDto character)
+    public async Task<ActionResult<GetOwnedCharacterDto>> CreateCharacter([FromBody] AddCharacterDto character)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
         var newCharacter = _mapper.Map<Character>(character);
         var response = await _repository.AddCharacter(newCharacter);
         if (!response.Success) return BadRequest(response.Message);
-        var result = _mapper.Map<GetCharacterDto>(response.Data);
+        var result = _mapper.Map<GetOwnedCharacterDto>(response.Data);
         return Ok(result);
     }
     

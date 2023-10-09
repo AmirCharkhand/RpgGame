@@ -2,10 +2,11 @@
 
 namespace RPG.Application.Models.CharacterDtos;
 
-public class GetCharacterDto
+public class GetUniversalCharacterDto
 {
     public int Id { get; set; }
-    public string Name { get; set; } = "Amiroo";
+    public bool Owned { get; set; }
+    public string Name { get; set; } = string.Empty;
     public float Health { get; set; }
     public float Strength { get; set; }
     public float Attack { get; set; }
