@@ -93,9 +93,9 @@ public class FightService : IFightService
     {
         var response = new ServiceResponse<FightResultDto>();
 
-        if (characterIds == null || characterIds.Count < 2)
+        if (characterIds == null || characterIds.Count < 2 || characterIds.Count > 7)
         {
-            response.Message = "There must be at least 2 characters for a fight";
+            response.Message = "There must be at least 2 and at last 7 characters for a fight";
             response.Success = false;
             return response;
         }

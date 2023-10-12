@@ -21,27 +21,27 @@ public class FightController : ControllerBase
     }
 
     [HttpPost("WeaponAttack")]
-    public async Task<ActionResult<ServiceResponse<AttackResultDto>>> WeaponAttack([FromBody] WeaponAttackDto request)
+    public async Task<ActionResult<AttackResultDto>> WeaponAttack([FromBody] WeaponAttackDto request)
     {
         var response = await _service.WeaponAttack(request.AttackerId, request.OpponentId);
         if (!response.Success) return BadRequest(response.Message);
-        return Ok(response);
+        return Ok(response.Data);
     }
     
     [HttpPost("SkillAttack")]
-    public async Task<ActionResult<ServiceResponse<AttackResultDto>>> SkillAttack([FromBody] SkillAttackDto request)
+    public async Task<ActionResult<AttackResultDto>> SkillAttack([FromBody] SkillAttackDto request)
     {
         var response = await _service.SkillAttack(request.AttackerId, request.OpponentId, request.SkillId);
         if (!response.Success) return BadRequest(response.Message);
-        return Ok(response);
+        return Ok(response.Data);
     }
 
     [HttpPost]
-    public async Task<ActionResult<ServiceResponse<FightResultDto>>> Fight([FromBody] FightRequestDto request)
+    public async Task<ActionResult<FightResultDto>> Fight([FromBody] FightRequestDto request)
     {
         var response = await _service.Fight(request.CharacterIds);
         if (!response.Success) return BadRequest(response.Message);
-        return Ok(response);
+        return Ok(response.Data);
     }
 
     [HttpGet]
