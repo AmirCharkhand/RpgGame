@@ -20,6 +20,7 @@ public class SkillController : ControllerBase
     }
 
     [HttpGet]
+    [ResponseCache(Duration = 60)]
     public async Task<ActionResult<IEnumerable<GetSkillDto>>> GetSkills()
     {
         try

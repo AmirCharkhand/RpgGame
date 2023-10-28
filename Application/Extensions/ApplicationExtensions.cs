@@ -16,6 +16,7 @@ public static class ApplicationExtensions
             .AddAutoMapper(Assembly.GetExecutingAssembly())
             .AddHttpContextAccessor()
             .AddCorsExtension()
+            .AddResponseCaching()
             .AddHashServiceExtension()
             .AddUserServiceExtension()
             .AddAuthServiceExtension()

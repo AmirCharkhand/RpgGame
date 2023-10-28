@@ -56,6 +56,7 @@ public class CharacterController : ControllerBase
     }
 
     [HttpGet]
+    [ResponseCache(Duration = 10)]
     public async Task<ActionResult<IEnumerable<GetOwnedCharacterDto>>> GetOwnedCharacters([FromQuery] SortDto? sortDto, [FromQuery] PagingParam? pagingParam = default)
     {
         var response = await _repository.GetOwnedCharacters(sortDto, pagingParam);
@@ -67,6 +68,7 @@ public class CharacterController : ControllerBase
     }
     
     [HttpGet("Universal")]
+    [ResponseCache(Duration = 10)]
     public async Task<ActionResult<IEnumerable<GetUniversalCharacterDto>>> GetUniversalCharacters([FromQuery] SortDto? sortDto, [FromQuery] PagingParam? pagingParam = default)
     {
         var response = await _repository.GetUniversalCharacters(sortDto, pagingParam);
