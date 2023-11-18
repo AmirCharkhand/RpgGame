@@ -13,7 +13,7 @@ public class Repository<T, TKey> : IRepository<T, TKey> where T : Entity<TKey>
 {
     private readonly IHttpContextAccessor _contextAccessor;
     private readonly DataContext _dbContext;
-    protected readonly DbSet<T> Set;
+    private readonly DbSet<T> Set;
 
     protected int UserId => int.Parse(_contextAccessor.HttpContext!.User.FindFirstValue(ClaimTypes.NameIdentifier));
 
@@ -36,8 +36,12 @@ public class Repository<T, TKey> : IRepository<T, TKey> where T : Entity<TKey>
 
     public IQueryable<T> Filter(Expression<Func<T, bool>> expression)
     {
-        return Set
-            .Where(expression);
+        return Set.Where(expression);
+    }
+
+    public async Task<bool> IsExist(Expression<Func<T, bool>> expression)
+    {
+        return await Set.AnyAsync(expression);
     }
 
     public virtual Task<ServiceResponse<PagedList<T>>> Search(string searchText,SortDto? sortDto, PagingParam? pagingParam = default)

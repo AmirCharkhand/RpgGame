@@ -229,7 +229,11 @@ public class CharacterRepository : Repository<Character,int> , ICharacterReposit
         var response = new ServiceResponse<Character>();
         try
         {
-            if (!await Set.AnyAsync(c => c.User!.Id == UserId))
+            toModify.User ??= await _userRepository
+                    .Filter(u => u.Characters!.Contains(toModify))
+                    .FirstOrDefaultAsync();
+
+            if (toModify.User == null || toModify.User.Id != UserId)
             {
                 response.Message = "this character is not belong to current User!";
                 response.Success = false;

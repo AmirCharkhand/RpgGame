@@ -20,7 +20,7 @@ public class UserRepository : Repository<User,int> , IUserRepository
         
         try
         {
-            if (await FindUser(userName))
+            if (await IsExist(u => string.Equals(u.Username,userName)))
             {
                 response.Success = false;
                 response.Message = "This User Name Already Exists";
@@ -41,11 +41,6 @@ public class UserRepository : Repository<User,int> , IUserRepository
         }
 
         return response;
-    }
-
-    private async Task<bool> FindUser(string userName)
-    {
-        return await Set.AnyAsync(u => string.Equals(u.Username.ToLower(), userName.ToLower()));
     }
 
     public async Task<ServiceResponse<User>> GetUser(string userName)

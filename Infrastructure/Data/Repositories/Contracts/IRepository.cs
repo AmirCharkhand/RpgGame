@@ -11,7 +11,7 @@ public interface IRepository<T,TKey> where T : Entity<TKey>
     Task<T?> GetById(TKey id);
     Task<List<T>> GetAll();
     IQueryable<T> Filter(Expression<Func<T, bool>> expression);
-
+    Task<bool> IsExist(Expression<Func<T, bool>> expression);
     Task<ServiceResponse<PagedList<T>>> Search(string searchText, SortDto? sortDto, PagingParam? pagingParam = default);
     Task Add(T entity);
     Task Update(T entity);
