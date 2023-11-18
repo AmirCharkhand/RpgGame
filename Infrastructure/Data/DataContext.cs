@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RPG.Domain.Models;
+using System.Reflection;
 
 namespace RPG.Infrastructure.Data;
 
@@ -17,10 +18,6 @@ public class DataContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Character>()
-            .HasOne(c => c.Weapon)
-            .WithOne(w => w.Character)
-            .HasForeignKey<Weapon>(w => w.CharacterRef)
-            .OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
     }
 }
